@@ -16,3 +16,18 @@ export const getDeviconClassName = (techName: string) => {
 
   return techMap[normalizedTechName] ? `${techMap[normalizedTechName]} colored` : "devicon-devicon-plain";
 };
+
+export const getTimeStamp = (date: Date) => {
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const diffInMinutes = Math.floor(diff / (1000 * 60));
+  const diffInHours = Math.floor(diff / (1000 * 60 * 60));
+  const diffInDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+  return diffInDays > 0
+    ? `${diffInDays}d`
+    : diffInHours > 0
+      ? `${diffInHours}h`
+      : diffInMinutes > 0
+        ? `${diffInMinutes}m`
+        : `just now`;
+};
