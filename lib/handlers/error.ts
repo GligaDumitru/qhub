@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
-import { ZodError } from "zod";
+import z, { ZodError } from "zod";
 import { InternalServerError, RequestError, ValidationError } from "../http-errors";
 import logger from "../logger";
 
@@ -37,18 +37,8 @@ const handleError = (error: unknown, responseType: ResponseType = "server") => {
   }
 
   if (error instanceof ZodError) {
-    const fieldErrors: Record<string, string[]> = {};
-    error.issues.forEach((issue) => {
-      const path = issue.path.join(".");
-
-      if (!fieldErrors[path]) {
-        fieldErrors[path] = [];
-      }
-
-      fieldErrors[path].push(issue.message);
-    });
-
-    const validationError = new ValidationError(fieldErrors);
+    const flattened = z.flattenError(error);
+    const validationError = new ValidationError(flattened.fieldErrors as Record<string, string[]>);
 
     logger.error({ err: error }, `Validation Error: ${validationError.message}`);
     return formatResponse(responseType, validationError.statusCode, validationError.message, validationError.errors);
