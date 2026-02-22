@@ -11,6 +11,7 @@ export interface IInteraction {
   updatedAt: Date;
 }
 
+export interface IInteractionDoc extends IInteraction, Document {}
 const InteractionSchema = new Schema<IInteraction>(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
