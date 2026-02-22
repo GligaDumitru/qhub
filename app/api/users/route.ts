@@ -36,14 +36,19 @@ export async function POST(request: NextRequest) {
     }
 
     const { email, username } = validatedData.data;
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-    if (existingUser) {
-      throw new Error("User already exists");
+    const existingUserEmail = await User.findOne({ email });
+    if (existingUserEmail) {
+      throw new Error("Email already exists");
     }
 
     const existingUsername = await User.findOne({ username });
     if (existingUsername) {
       throw new Error("Username already exists");
+    }
+
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
+      throw new Error("User already exists");
     }
 
     const newUser = await User.create(validatedData.data);

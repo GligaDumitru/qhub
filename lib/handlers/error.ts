@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { InternalServerError, RequestError, ValidationError } from "../http-errors";
@@ -27,6 +28,9 @@ export const formatResponse = (
 };
 
 const handleError = (error: unknown, responseType: ResponseType = "server") => {
+  if (error instanceof mongoose.mongo.MongoServerError) {
+    logger.error({ err: error }, `MongoDB Server Error: ${error.message}`);
+  }
   if (error instanceof RequestError) {
     logger.error({ err: error }, `${responseType.toUpperCase()} Error: ${error.message}`);
     return formatResponse(responseType, error.statusCode, error.message, error.errors);
