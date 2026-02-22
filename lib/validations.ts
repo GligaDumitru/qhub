@@ -1,4 +1,11 @@
+import { isValidObjectId } from "mongoose";
 import { z } from "zod";
+
+/** Reusable schema for MongoDB ObjectId (24-char hex string) */
+export const objectIdSchema = z
+  .string()
+  .min(1, "ID is required")
+  .refine((id) => isValidObjectId(id), { message: "Invalid ObjectId" });
 
 export const SignInSchema = z.object({
   email: z.email({ message: "Please provide a valid email address." }).min(1, { message: "Email is required." }),
@@ -75,11 +82,11 @@ export const UserSchema = z.object({
 });
 
 export const AccountSchema = z.object({
-  userId: z.string(),
-  name: z.string().min(1, "Name is required"),
-  image: z.string().url("Invalid image URL").optional(),
+  userId: z.refine(isValidObjectId, { message: "Invalid user ID" }),
+  name: z.string("Required").min(1, "Name is required"),
+  image: z.url("Invalid image URL").optional(),
   password: z
-    .string()
+    .string("Required")
     .min(6, { message: "Password must be at least 6 characters long." })
     .max(100, { message: "Password cannot exceed 100 characters." })
     .regex(/[A-Z]/, {
@@ -93,8 +100,8 @@ export const AccountSchema = z.object({
       message: "Password must contain at least one special character.",
     })
     .optional(),
-  provider: z.string().min(1, "Provider is required"),
-  providerAccountId: z.string().min(1, "Provider account ID is required"),
+  provider: z.string("Required").min(1, "Provider is required"),
+  providerAccountId: z.string("Required").min(1, "Provider account ID is required"),
 });
 
 export const SignInWithOAuthSchema = z.object({
