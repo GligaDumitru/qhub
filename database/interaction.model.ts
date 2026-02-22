@@ -25,5 +25,5 @@ const InteractionSchema = new Schema<IInteraction>(
   { timestamps: true }
 );
 
-const Interaction = models?.interaction || model<IInteraction>("Interaction", InteractionSchema);
+const Interaction = models?.Interaction || model<IInteraction>("Interaction", InteractionSchema);
 export default Interaction;

@@ -21,6 +21,6 @@ const VoteSchema = new Schema<IVote>(
 // Prevent duplicate votes: one vote per user per content
 VoteSchema.index({ author: 1, id: 1 }, { unique: true });
 
-const Vote = models?.vote || model<IVote>("Vote", VoteSchema);
+const Vote = models?.Vote || model<IVote>("Vote", VoteSchema);
 
 export default Vote;

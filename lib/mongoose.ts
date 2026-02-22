@@ -22,7 +22,6 @@ if (!cached) {
 
 const dbConnect = async (): Promise<Mongoose> => {
   if (cached.conn) {
-    logger.info("MongoDB connection already established");
     return cached.conn;
   }
 
