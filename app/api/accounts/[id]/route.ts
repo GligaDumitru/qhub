@@ -1,29 +1,29 @@
-import User, { IUserDoc } from "@/database/user.model";
+import Account, { type IAccountDoc } from "@/database/account.model";
 import handleError from "@/lib/handlers/error";
 import { NotFoundError, ValidationError } from "@/lib/http-errors";
 import dbConnect from "@/lib/mongoose";
-import { UserSchema } from "@/lib/validations";
+import { AccountSchema } from "@/lib/validations";
 import { isValidObjectId } from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 
-// GET /api/users/:id
+// GET /api/accounts/:id
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
   try {
     if (!isValidObjectId(id)) {
-      throw new ValidationError({ id: ["Invalid ObjectId for user id"] });
+      throw new ValidationError({ id: ["Invalid ObjectId for account id"] });
     }
     await dbConnect();
-    const user = await User.findById(id);
-    if (!user) {
-      throw new NotFoundError(`User with id ${id}`);
+    const account = await Account.findById(id);
+    if (!account) {
+      throw new NotFoundError(`Account with id ${id}`);
     }
 
-    const response: APIResponse<IUserDoc> = {
+    const response: APIResponse<IAccountDoc> = {
       success: true,
-      data: user,
+      data: account,
     };
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
@@ -31,26 +31,23 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   }
 }
 
-// DELETE /api/users/:id
+// DELETE /api/accounts/:id
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
   try {
-    // check if the id is a valid ObjectId
     if (!isValidObjectId(id)) {
-      throw new ValidationError({ id: ["Invalid ObjectId for user id"] });
+      throw new ValidationError({ id: ["Invalid ObjectId for account id"] });
     }
-
     await dbConnect();
-
-    const user = await User.findByIdAndDelete(id);
-    if (!user) {
-      throw new NotFoundError(`User with id ${id}`);
+    const account = await Account.findByIdAndDelete(id);
+    if (!account) {
+      throw new NotFoundError(`Account with id ${id}`);
     }
 
-    const response: APIResponse<IUserDoc> = {
+    const response: APIResponse<IAccountDoc> = {
       success: true,
-      data: user,
+      data: account,
     };
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
@@ -58,33 +55,32 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   }
 }
 
-// PUT /api/users/:id
+// PUT /api/accounts/:id
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const body = await request.json();
 
   try {
     if (!isValidObjectId(id)) {
-      throw new ValidationError({ id: ["Invalid ObjectId for user id"] });
+      throw new ValidationError({ id: ["Invalid ObjectId for account id"] });
     }
     await dbConnect();
 
-    const validatedData = UserSchema.safeParse(body);
+    const validatedData = AccountSchema.partial().safeParse(body);
     if (!validatedData.success) {
       const flattened = z.flattenError(validatedData.error);
       throw new ValidationError(flattened.fieldErrors);
     }
 
-    const user = await User.findByIdAndUpdate(id, validatedData.data, { new: true });
-    if (!user) {
-      throw new NotFoundError(`User with id ${id}`);
+    const account = await Account.findByIdAndUpdate(id, validatedData.data, { new: true });
+    if (!account) {
+      throw new NotFoundError(`Account with id ${id}`);
     }
 
-    const response: APIResponse<IUserDoc> = {
+    const response: APIResponse<IAccountDoc> = {
       success: true,
-      data: user,
+      data: account,
     };
-
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
     return handleError(error, "api") as APIErrorResponse;
