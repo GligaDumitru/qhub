@@ -2,15 +2,14 @@
 
 import { auth } from "@/auth";
 import { Session } from "next-auth";
-import z from "zod";
-import { UnauthorizedError } from "../http-errors";
+import z, { ZodError } from "zod";
+import { UnauthorizedError, ValidationError } from "../http-errors";
 import dbConnect from "../mongoose";
-import handleError from "./error";
 
 type ActionOptions<T> = {
   params?: T;
   schema?: z.ZodType<T>;
-  authorized?: boolean;
+  authorize?: boolean;
 };
 
 /**
@@ -38,21 +37,27 @@ type ActionOptions<T> = {
  * });
  * await doSomething(params, session.user.id);
  */
-async function action<T>({ params, schema, authorized = false }: ActionOptions<T>) {
-  if (params && schema) {
+async function action<T>({ params, schema, authorize = false }: ActionOptions<T>) {
+  if (schema && params) {
     try {
       schema.parse(params);
     } catch (error) {
-      return handleError(error);
+      if (error instanceof ZodError) {
+        const flattened = z.flattenError(error);
+        return new ValidationError(flattened.fieldErrors as Record<string, string[]>);
+      } else {
+        return new Error("Schema validation failed");
+      }
     }
   }
 
   let session: Session | null = null;
 
-  if (authorized) {
+  if (authorize) {
     session = await auth();
+
     if (!session) {
-      throw new UnauthorizedError();
+      return new UnauthorizedError();
     }
   }
 

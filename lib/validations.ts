@@ -1,11 +1,13 @@
-import { isValidObjectId } from "mongoose";
 import { z } from "zod";
+
+/** 24-char hex string matching MongoDB ObjectId (client-safe, no mongoose) */
+const objectIdRegex = /^[0-9A-Fa-f]{24}$/;
 
 /** Reusable schema for MongoDB ObjectId (24-char hex string) */
 export const objectIdSchema = z
   .string()
   .min(1, "ID is required")
-  .refine((id) => isValidObjectId(id), { message: "Invalid ObjectId" });
+  .refine((id) => objectIdRegex.test(id), { message: "Invalid ObjectId" });
 
 export const SignInSchema = z.object({
   email: z.email({ message: "Please provide a valid email address." }).min(1, { message: "Email is required." }),
@@ -82,7 +84,7 @@ export const UserSchema = z.object({
 });
 
 export const AccountSchema = z.object({
-  userId: z.refine(isValidObjectId, { message: "Invalid user ID" }),
+  userId: z.string().refine((id) => objectIdRegex.test(id), { message: "Invalid user ID" }),
   name: z.string("Required").min(1, "Name is required"),
   image: z.url("Invalid image URL").optional(),
   password: z
