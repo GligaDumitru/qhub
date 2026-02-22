@@ -3,6 +3,8 @@ import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
+import handleError from "@/lib/handlers/error";
+import dbConnect from "@/lib/mongoose";
 import Link from "next/link";
 
 const questions: Question[] = [
@@ -48,7 +50,18 @@ const questions: Question[] = [
   },
 ];
 
+const test = async () => {
+  try {
+    await dbConnect();
+    throw new Error("test error");
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
 const Home = async ({ searchParams }: { searchParams: Promise<{ query: string; filter: string }> }) => {
+  const result = await test();
+  console.log(result);
   const { query, filter } = await searchParams;
 
   const filteredQuestions = questions.filter((question) => {
