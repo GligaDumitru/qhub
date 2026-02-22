@@ -11,11 +11,9 @@ export interface IUser {
   reputation?: number;
   createdAt: Date;
   updatedAt: Date;
-  _id: string;
-  __v: number;
 }
 
-const UserSchema = new Schema(
+const UserSchema = new Schema<IUser>(
   {
     name: { type: String, required: true },
     username: { type: String, required: true, unique: true },
