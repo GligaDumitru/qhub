@@ -9,20 +9,6 @@ import { api } from "./lib/api";
 import { SignInSchema } from "./lib/validations";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  callbacks: {
-    jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
-    session({ session, token }) {
-      if (session.user) {
-        session.user.id = (token.id ?? token.sub) as string;
-      }
-      return session;
-    },
-  },
   providers: [
     GitHub,
     Google,
@@ -74,4 +60,50 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
+  callbacks: {
+    async session({ session, token }) {
+      session.user.id = token.sub as string;
+      return session;
+    },
+    async jwt({ token, account }) {
+      if (account) {
+        const isCredentials = account.type === "credentials";
+        const { data: existingAccount, success } = (await api.accounts.getByProvider(
+          isCredentials ? token.email! : (account.providerAccountId as string)
+        )) as ActionResponse<IAccountDoc>;
+
+        if (!success || !existingAccount) {
+          return token;
+        }
+
+        const userId = existingAccount.userId.toString();
+        if (userId) {
+          token.sub = userId;
+        }
+      }
+
+      return token;
+    },
+    async signIn({ user, account, profile }) {
+      if (account?.type === "credentials") return true;
+
+      if (!account || !user) return false;
+
+      const userInfo = {
+        name: user.name!,
+        email: user.email!,
+        image: user.image!,
+        username:
+          account.provider === "github" ? (profile?.login as string) : (user.name?.toLocaleLowerCase() as string),
+      };
+
+      const { success } = (await api.auth.oAuthSignIn({
+        provider: account.provider as "github" | "google",
+        providerAccountId: account.providerAccountId as string,
+        user: userInfo,
+      })) as ActionResponse;
+
+      return success;
+    },
+  },
 });
