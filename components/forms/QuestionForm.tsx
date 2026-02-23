@@ -33,7 +33,6 @@ const QuestionForm = () => {
       e.preventDefault();
       const tagInput = e.currentTarget.value.trim();
 
-      console.log(tagInput, field.value);
       if (tagInput && tagInput.length < 15 && !field.value.includes(tagInput)) {
         form.setValue("tags", [...field.value, tagInput]);
         e.currentTarget.value = "";

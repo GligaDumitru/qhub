@@ -9,6 +9,20 @@ import { api } from "./lib/api";
 import { SignInSchema } from "./lib/validations";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  callbacks: {
+    jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      if (session.user) {
+        session.user.id = (token.id ?? token.sub) as string;
+      }
+      return session;
+    },
+  },
   providers: [
     GitHub,
     Google,
@@ -17,6 +31,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         email: {},
         password: {},
+        userId: {},
+        username: {},
+        name: {},
+        image: {},
       },
       async authorize(credentials) {
         const validatedFields = SignInSchema.safeParse(credentials);
@@ -31,16 +49,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        console.log("existingAccount", existingAccount);
-
         const { data: existingUser } = (await api.users.getById(
           existingAccount.userId.toString()
         )) as ActionResponse<IUserDoc>;
         if (!existingUser) {
           return null;
         }
-
-        console.log("existingUser", existingUser);
 
         if (!existingAccount.password) {
           return null;

@@ -36,9 +36,8 @@ export async function signUpWithCredentials(params: AuthCredentials): Promise<Ac
 
     const hashedPassword = await bcrypt.hash(password, 12);
     const [newUser] = await User.create([{ name, email, password: hashedPassword, username }], { session });
-    console.log("newUser", newUser);
 
-    const [newAccount] = await Account.create(
+    await Account.create(
       [
         {
           userId: newUser._id,
@@ -50,7 +49,6 @@ export async function signUpWithCredentials(params: AuthCredentials): Promise<Ac
       ],
       { session }
     );
-    console.log("newAccount", newAccount);
 
     await session.commitTransaction();
 
