@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { AskQuestionSchema } from "@/lib/validations";
 
 import ROUTES from "@/constants/routes";
-import { createQuestion } from "@/lib/actions/question.action";
+import { createQuestion, editQuestion } from "@/lib/actions/question.action";
 import { MDXEditorMethods } from "@mdxeditor/editor";
 import { Loader } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -23,7 +23,12 @@ const Editor = dynamic(() => import("@/components/editor").then((mod) => mod.Edi
   ssr: false,
 });
 
-const QuestionForm = () => {
+interface Params {
+  question?: Question;
+  isEdit?: boolean;
+}
+
+const QuestionForm = ({ question, isEdit }: Params) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -31,9 +36,9 @@ const QuestionForm = () => {
   const form = useForm({
     resolver: zodResolver(AskQuestionSchema),
     defaultValues: {
-      title: "",
-      content: "",
-      tags: [],
+      title: question?.title ?? "",
+      content: question?.content ?? "",
+      tags: question?.tags.map((tag) => tag.name) ?? [],
     },
   });
 
@@ -75,6 +80,25 @@ const QuestionForm = () => {
 
   const handleCreateQuestion = async (data: z.infer<typeof AskQuestionSchema>) => {
     startTransition(async () => {
+      if (isEdit && question) {
+        const result = await editQuestion({ ...data, questionId: question._id });
+
+        if (!result.success) {
+          toast.error("Error", {
+            description: result.error?.message ?? "An error occurred while updating question",
+          });
+          return;
+        }
+
+        toast.success("Success", {
+          description: "Question updated successfully",
+        });
+        if (result.data) {
+          router.push(ROUTES.QUESTION(result.data._id.toString()));
+        }
+        return;
+      }
+
       const result = await createQuestion(data);
       if (!result.success) {
         toast.error("Error", {
@@ -180,11 +204,11 @@ const QuestionForm = () => {
             {isPending ? (
               <>
                 <Loader className="mr-2 size-4 animate-spin" />
-                <span>Creating your question...</span>
+                <span>{isEdit ? "Updating your question..." : "Creating your question..."}</span>
               </>
             ) : (
               <>
-                <span>Ask A Question</span>
+                <span>{isEdit ? "Update Question" : "Ask A Question"}</span>
               </>
             )}
           </Button>
