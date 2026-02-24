@@ -5,9 +5,15 @@ import { useForm } from "react-hook-form";
 
 import { AskQuestionSchema } from "@/lib/validations";
 
+import ROUTES from "@/constants/routes";
+import { createQuestion } from "@/lib/actions/question.action";
 import { MDXEditorMethods } from "@mdxeditor/editor";
+import { Loader } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useRef, useTransition } from "react";
+import { toast } from "sonner";
+import z from "zod";
 import TagCard from "../cards/TagCard";
 import { Button } from "../ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
@@ -18,6 +24,9 @@ const Editor = dynamic(() => import("@/components/editor").then((mod) => mod.Edi
 });
 
 const QuestionForm = () => {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
   const editorRef = useRef<MDXEditorMethods>(null);
   const form = useForm({
     resolver: zodResolver(AskQuestionSchema),
@@ -64,7 +73,25 @@ const QuestionForm = () => {
     }
   };
 
-  const handleCreateQuestion = () => {};
+  const handleCreateQuestion = async (data: z.infer<typeof AskQuestionSchema>) => {
+    startTransition(async () => {
+      const result = await createQuestion(data);
+      if (!result.success) {
+        toast.error("Error", {
+          description: result.error?.message ?? "An error occurred while creating question",
+        });
+        return;
+      }
+
+      toast.success("Success", {
+        description: "Question created successfully",
+      });
+
+      if (result.data) {
+        router.push(ROUTES.QUESTION(result.data._id.toString()));
+      }
+    });
+  };
 
   return (
     <Form {...form}>
@@ -149,8 +176,17 @@ const QuestionForm = () => {
         />
 
         <div className="mt-16 flex justify-end">
-          <Button type="submit" className="primary-gradient text-light-900! w-fit">
-            Ask A Question
+          <Button disabled={isPending} type="submit" className="primary-gradient text-light-900! w-fit">
+            {isPending ? (
+              <>
+                <Loader className="mr-2 size-4 animate-spin" />
+                <span>Creating your question...</span>
+              </>
+            ) : (
+              <>
+                <span>Ask A Question</span>
+              </>
+            )}
           </Button>
         </div>
       </form>

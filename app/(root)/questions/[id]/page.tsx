@@ -1,4 +1,4 @@
-const QuestionByIdPage = async ({ params }: { params: Promise<{ id: string }> }) => {
+const QuestionDetails = async ({ params }: RouteParams) => {
   const { id } = await params;
 
   return (
@@ -8,4 +8,4 @@ const QuestionByIdPage = async ({ params }: { params: Promise<{ id: string }> })
   );
 };
 
-export default QuestionByIdPage;
+export default QuestionDetails;
