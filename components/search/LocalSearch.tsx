@@ -40,7 +40,7 @@ const LocalSearch = ({ route, imgSrc, placeholder, otherClasses }: LocalSearchPr
           router.push(newUrl, { scroll: false });
         }
       }
-    }, 1000);
+    }, 500);
 
     return () => clearTimeout(debounceSearchFn);
   }, [pathname, route, router, searchParams, searchQuery]);

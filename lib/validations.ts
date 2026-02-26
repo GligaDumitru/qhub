@@ -130,7 +130,7 @@ export const PaginatedSearchParamsSchema = z.object({
   pageSize: z.number().min(1, "Page size must be at least 1").default(10),
   query: z.string().optional(),
   filter: z.string().optional(),
-  sort: z.string().optional(),
+  sort: z.enum(["newest", "unanswered", "popular"]).optional(),
 });
 
 export const GetTagQuestionsSchema = PaginatedSearchParamsSchema.extend({

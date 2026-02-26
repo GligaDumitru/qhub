@@ -14,6 +14,11 @@ type ErrorResponse = ActionResponse<undefined> & { success: false };
 type APIErrorResponse = NextResponse<ErrorResponse>;
 type APIResponse<T = null> = NextResponse<SuccessResponse<T> | ErrorResponse>;
 
+type PaginatedResponse<T = null> = ActionResponse<{
+  data?: T;
+  isNext: boolean;
+}>;
+
 interface UrlQueryParams {
   params: string;
   key: string;
@@ -43,7 +48,7 @@ interface Question {
   content: string;
   tags: Tag[];
   author: Author;
-  createdAt: Date;
+  createdAt: string;
   upvotes: number;
   downvotes: number;
   answers: number;
@@ -57,7 +62,7 @@ interface Answer {
   upvotes: number;
   question: string;
   downvotes: number;
-  createdAt: Date;
+  createdAt: string;
 }
 
 interface RouteParams {
