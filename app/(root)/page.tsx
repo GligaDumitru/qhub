@@ -1,18 +1,12 @@
 import QuestionCard from "@/components/cards/QuestionCard";
+import DataRenderer from "@/components/DataRenderer";
 import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
+import { EMPTY_QUESTION } from "@/constants/states";
 import { getQuestions } from "@/lib/actions/question.action";
 import Link from "next/link";
-
-const InfoMessage = ({ message }: { message: string }) => {
-  return (
-    <div className="mt-10 flex w-full items-center justify-center">
-      <p className="text-dark400_light700">{message}</p>
-    </div>
-  );
-};
 
 const Home = async ({
   searchParams,
@@ -43,18 +37,15 @@ const Home = async ({
         <LocalSearch route="/" imgSrc="/icons/search.svg" placeholder="Search questions..." otherClasses="flex-1" />
       </section>
       <HomeFilter />
-      <div className="mt-10 flex w-full flex-col gap-6">
-        {success ? (
-          <>
-            {(questions ?? []).map((question: Question) => (
-              <QuestionCard key={question._id.toString()} question={question} />
-            ))}
-            {questions.length === 0 && <InfoMessage message="No questions found" />}
-          </>
-        ) : (
-          <InfoMessage message={error?.message || "An error occurred while fetching questions"} />
-        )}
-      </div>
+      <DataRenderer
+        success={success}
+        data={questions ?? []}
+        error={error}
+        empty={EMPTY_QUESTION}
+        render={(questions) =>
+          questions.map((question) => <QuestionCard key={question._id.toString()} question={question} />)
+        }
+      />
     </>
   );
 };
