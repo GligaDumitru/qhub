@@ -10,9 +10,10 @@ interface LocalSearchProps {
   imgSrc: string;
   placeholder: string;
   otherClasses?: string;
+  iconPosition?: "left" | "right";
 }
 
-const LocalSearch = ({ route, imgSrc, placeholder, otherClasses }: LocalSearchProps) => {
+const LocalSearch = ({ route, imgSrc, placeholder, otherClasses, iconPosition = "left" }: LocalSearchProps) => {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -49,7 +50,7 @@ const LocalSearch = ({ route, imgSrc, placeholder, otherClasses }: LocalSearchPr
     <div
       className={`background-light800_darkgradient flex min-h-[56px] grow items-center gap-4 rounded-[10px] px-4 ${otherClasses}`}
     >
-      <Image src={imgSrc} alt="search" width={24} height={24} className="cursor-pointer" />
+      {iconPosition === "left" && <Image src={imgSrc} alt="search" width={24} height={24} className="cursor-pointer" />}
       <Input
         type="text"
         placeholder={placeholder}
@@ -57,6 +58,9 @@ const LocalSearch = ({ route, imgSrc, placeholder, otherClasses }: LocalSearchPr
         onChange={(e) => setSearchQuery(e.target.value)}
         className="paragraph-regular text-dark400_light700 no-focus placeholder min-h-[56px] grow items-center gap-1 rounded-xl border-none bg-transparent! px-4 shadow-none outline-none"
       />
+      {iconPosition === "right" && (
+        <Image src={imgSrc} alt="search" width={24} height={24} className="cursor-pointer" />
+      )}
     </div>
   );
 };
