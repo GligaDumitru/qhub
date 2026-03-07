@@ -7,7 +7,13 @@ import mongoose, { QueryFilter } from "mongoose";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
 import { NotFoundError, UnauthorizedError } from "../http-errors";
-import { AskQuestionSchema, EditQuestionSchema, GetQuestionSchema, PaginatedSearchParamsSchema } from "../validations";
+import {
+  AskQuestionSchema,
+  EditQuestionSchema,
+  GetQuestionSchema,
+  IncrementViewsSchema,
+  PaginatedSearchParamsSchema,
+} from "../validations";
 
 export async function createQuestion(params: CreateQuestionParams): Promise<ActionResponse<IQuestionDoc>> {
   const validationResult = await action({ params, schema: AskQuestionSchema, authorize: true });
@@ -252,6 +258,31 @@ export async function getQuestions(
     const isNext = totalQuestions > skip + limit;
 
     return { success: true, data: { questions: JSON.parse(JSON.stringify(questions)) as Question[], isNext } };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function incrementQuestionView(params: IncrementQuestionViewParams): Promise<ActionResponse<Question>> {
+  const validationResult = await action({ params, schema: IncrementViewsSchema, authorize: false });
+
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { questionId } = validationResult.params!;
+
+  try {
+    const question = await Question.findById(questionId);
+
+    if (!question) {
+      throw new NotFoundError("Question not found");
+    }
+
+    question.views += 1;
+    await question.save();
+
+    return { success: true, data: question };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

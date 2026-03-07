@@ -3,10 +3,11 @@ import Preview from "@/components/editor/Preview";
 import Metric from "@/components/Metric";
 import UserAvatar from "@/components/UserAvatar";
 import ROUTES from "@/constants/routes";
-import { getQuestion } from "@/lib/actions/question.action";
+import { getQuestion, incrementQuestionView } from "@/lib/actions/question.action";
 import { formatNumber, getTimeStamp } from "@/lib/utils";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { after } from "next/server";
 
 const QuestionDetails = async ({ params }: RouteParams) => {
   const { id } = await params;
@@ -14,6 +15,10 @@ const QuestionDetails = async ({ params }: RouteParams) => {
   if (!success || !data) {
     return notFound();
   }
+
+  after(async () => {
+    await incrementQuestionView({ questionId: id as string });
+  });
 
   const { author, tags, title, createdAt, answers, views, content } = data;
   return (
