@@ -172,7 +172,7 @@ export async function editQuestion(params: EditQuestionParams): Promise<ActionRe
   }
 }
 
-export async function getQuestion(params: GetQuestionParams): Promise<ActionResponse<IQuestionDoc>> {
+export async function getQuestion(params: GetQuestionParams): Promise<ActionResponse<Question>> {
   const validationResult = await action({ params, schema: GetQuestionSchema, authorize: false });
 
   if (validationResult instanceof Error) {
@@ -182,15 +182,15 @@ export async function getQuestion(params: GetQuestionParams): Promise<ActionResp
   const { questionId } = validationResult.params!;
 
   try {
-    const question = await Question.findById(questionId).populate("tags");
+    const question = await Question.findById(questionId).populate("tags").populate("author", "_id name image");
     if (!question) {
       throw new NotFoundError("Question not found");
     }
 
     return {
       success: true,
-      data: JSON.parse(JSON.stringify(question)) as IQuestionDoc,
-    } as ActionResponse<IQuestionDoc>;
+      data: JSON.parse(JSON.stringify(question)),
+    };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
