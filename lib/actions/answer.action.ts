@@ -53,7 +53,7 @@ export async function createAnswer(params: CreateAnswerParams): Promise<ActionRe
 
 export async function getAnswers(
   params: GetAnswersParams
-): Promise<ActionResponse<{ answers: Answer[]; isNext: boolean }>> {
+): Promise<ActionResponse<{ answers: Answer[]; isNext: boolean; totalAnswers: number }>> {
   const validationResult = await action({ params, schema: GetAnswersSchema, authorize: false });
 
   if (validationResult instanceof Error) {
@@ -87,7 +87,10 @@ export async function getAnswers(
       .skip(skip)
       .limit(limit);
     const isNext = totalAnswers > skip + limit;
-    return { success: true, data: { answers: JSON.parse(JSON.stringify(answers)) as Answer[], isNext } };
+    return {
+      success: true,
+      data: { answers: JSON.parse(JSON.stringify(answers)) as Answer[], isNext, totalAnswers },
+    };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

@@ -44,3 +44,8 @@ export const EMPTY_COLLECTIONS = {
     href: ROUTES.COLLECTIONS,
   },
 };
+
+export const EMPTY_ANSWERS = {
+  title: "No Answers Yet",
+  message: "Be the first to answer this question. Share your knowledge and help others.",
+};

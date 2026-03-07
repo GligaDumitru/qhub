@@ -1,3 +1,4 @@
+import AllAnswers from "@/components/answers/AllAnswers";
 import TagCard from "@/components/cards/TagCard";
 import Preview from "@/components/editor/Preview";
 import AnswerForm from "@/components/forms/AnswerForm";
@@ -23,7 +24,11 @@ const QuestionDetails = async ({ params }: RouteParams) => {
     return notFound();
   }
 
-  const { success: answersSuccess, data: answersData } = await getAnswers({
+  const {
+    success: answersSuccess,
+    data: answersData,
+    error: answersError,
+  } = await getAnswers({
     questionId: id,
     page: 1,
     pageSize: 10,
@@ -85,6 +90,15 @@ const QuestionDetails = async ({ params }: RouteParams) => {
           <TagCard key={tag._id} _id={tag._id} name={tag.name} compact />
         ))}
       </div>
+
+      <section className="mt-5">
+        <AllAnswers
+          data={answersData?.answers ?? []}
+          success={answersSuccess}
+          error={answersError}
+          totalAnswers={answersData?.totalAnswers ?? 0}
+        />
+      </section>
 
       <section className="mt-5">
         <AnswerForm questionId={id as string} />
