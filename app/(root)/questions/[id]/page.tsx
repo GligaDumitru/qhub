@@ -1,8 +1,10 @@
 import TagCard from "@/components/cards/TagCard";
 import Preview from "@/components/editor/Preview";
+import AnswerForm from "@/components/forms/AnswerForm";
 import Metric from "@/components/Metric";
 import UserAvatar from "@/components/UserAvatar";
 import ROUTES from "@/constants/routes";
+import { getAnswers } from "@/lib/actions/answer.action";
 import { getQuestion, incrementQuestionView } from "@/lib/actions/question.action";
 import { formatNumber, getTimeStamp } from "@/lib/utils";
 import Link from "next/link";
@@ -12,13 +14,22 @@ import { after } from "next/server";
 const QuestionDetails = async ({ params }: RouteParams) => {
   const { id } = await params;
   const { success, data } = await getQuestion({ questionId: id as string });
-  if (!success || !data) {
-    return notFound();
-  }
 
   after(async () => {
     await incrementQuestionView({ questionId: id as string });
   });
+
+  if (!success || !data) {
+    return notFound();
+  }
+
+  const { success: answersSuccess, data: answersData } = await getAnswers({
+    questionId: id,
+    page: 1,
+    pageSize: 10,
+  });
+
+  console.log("answerData", answersData);
 
   const { author, tags, title, createdAt, answers, views, content } = data;
   return (
@@ -74,6 +85,10 @@ const QuestionDetails = async ({ params }: RouteParams) => {
           <TagCard key={tag._id} _id={tag._id} name={tag.name} compact />
         ))}
       </div>
+
+      <section className="mt-5">
+        <AnswerForm questionId={id as string} />
+      </section>
     </>
   );
 };
