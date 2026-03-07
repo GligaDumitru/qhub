@@ -6,11 +6,13 @@ import { useForm } from "react-hook-form";
 import { AnswerSchema } from "@/lib/validations";
 
 import { createAnswer } from "@/lib/actions/answer.action";
+import { api } from "@/lib/api";
 import { MDXEditorMethods } from "@mdxeditor/editor";
 import { Loader } from "lucide-react";
+import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useRef, useState, useTransition } from "react";
+import { Suspense, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import z from "zod";
 import { Button } from "../ui/button";
@@ -20,9 +22,18 @@ const Editor = dynamic(() => import("@/components/editor").then((mod) => mod.Edi
   ssr: false,
 });
 
-const AnswerForm = ({ questionId }: { questionId: string }) => {
-  const [isAISubmitting] = useState(false);
+const AnswerForm = ({
+  questionId,
+  questionTitle,
+  questionContent,
+}: {
+  questionId: string;
+  questionTitle: string;
+  questionContent: string;
+}) => {
+  const [isAISubmitting, setIsAISubmitting] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const session = useSession();
   const editorRef = useRef<MDXEditorMethods>(null);
 
   const form = useForm<z.infer<typeof AnswerSchema>>({
@@ -48,19 +59,53 @@ const AnswerForm = ({ questionId }: { questionId: string }) => {
       toast.success("Success", {
         description: "Answer created successfully",
       });
-      // reset form state
       form.reset();
+      if (editorRef.current) {
+        editorRef.current.setMarkdown("");
+      }
     });
   };
 
-  console.log(isPending);
+  const generateAIAnswer = async () => {
+    if (session.status !== "authenticated") {
+      return toast.error("Error", {
+        description: "You must be logged in to generate an AI answer",
+      });
+    }
+    try {
+      setIsAISubmitting(true);
+      const { success, data, error } = await api.ai.getAnswer(questionTitle, questionContent);
+
+      if (!success) {
+        toast.error("Error", {
+          description: error?.message ?? "An error occurred while generating an AI answer",
+        });
+        return;
+      }
+      const formattedAnswer = data.replace(/<br>/g, " ").toString().trim();
+
+      if (editorRef.current) {
+        editorRef.current.setMarkdown(formattedAnswer);
+
+        form.setValue("content", formattedAnswer);
+        form.trigger("content");
+      }
+    } catch (error) {
+      toast.error("Error", {
+        description: error instanceof Error ? error.message : "An error occurred while generating an AI answer",
+      });
+    } finally {
+      setIsAISubmitting(false);
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center sm:gap-2">
         <h4 className="text-dark400_light800 paragraph-semibold">Write your answer here</h4>
         <Button
           disabled={isAISubmitting}
-          type="submit"
+          onClick={generateAIAnswer}
           className="btn light-border-2 text-primary-500 dark:text-primary-500 gap-1.5 rounded-md border px-4 py-2.5 shadow-none"
         >
           {isAISubmitting ? (
@@ -90,7 +135,9 @@ const AnswerForm = ({ questionId }: { questionId: string }) => {
             render={({ field }) => (
               <FormItem className="flex w-full flex-col">
                 <FormControl>
-                  <Editor editorRef={editorRef} markdown={field.value} onChange={field.onChange} />
+                  <Suspense fallback={null}>
+                    <Editor editorRef={editorRef} markdown={field.value} onChange={field.onChange} />
+                  </Suspense>
                 </FormControl>
                 <FormMessage />
               </FormItem>
