@@ -72,9 +72,12 @@ const AnswerForm = ({
         description: "You must be logged in to generate an AI answer",
       });
     }
+
+    setIsAISubmitting(true);
+
+    const userAnswer = editorRef.current?.getMarkdown();
     try {
-      setIsAISubmitting(true);
-      const { success, data, error } = await api.ai.getAnswer(questionTitle, questionContent);
+      const { success, data, error } = await api.ai.getAnswer(questionTitle, questionContent, userAnswer);
 
       if (!success) {
         toast.error("Error", {
