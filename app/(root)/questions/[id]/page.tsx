@@ -4,6 +4,7 @@ import Preview from "@/components/editor/Preview";
 import AnswerForm from "@/components/forms/AnswerForm";
 import Metric from "@/components/Metric";
 import UserAvatar from "@/components/UserAvatar";
+import Votes from "@/components/votes/Votes";
 import ROUTES from "@/constants/routes";
 import { getAnswers } from "@/lib/actions/answer.action";
 import { getQuestion, incrementQuestionView } from "@/lib/actions/question.action";
@@ -34,9 +35,7 @@ const QuestionDetails = async ({ params }: RouteParams) => {
     pageSize: 10,
   });
 
-  console.log("answerData", answersData);
-
-  const { author, tags, title, createdAt, answers, views, content } = data;
+  const { author, tags, title, createdAt, answers, views, content, upvotes, downvotes } = data;
   return (
     <>
       <div className="flex-start w-full flex-col">
@@ -53,7 +52,7 @@ const QuestionDetails = async ({ params }: RouteParams) => {
             </Link>
           </div>
           <div className="flex justify-end">
-            <p>Votes</p>
+            <Votes upvotes={upvotes} downvotes={downvotes} hasUpvoted={true} hasDownvoted={true} />
           </div>
         </div>
 
