@@ -49,3 +49,8 @@ export const EMPTY_ANSWERS = {
   title: "No Answers Yet",
   message: "Be the first to answer this question. Share your knowledge and help others.",
 };
+
+export const EMPTY_USERS = {
+  title: "No Users Found",
+  message: "No users found. Be the first to sign up and start your journey.",
+};
