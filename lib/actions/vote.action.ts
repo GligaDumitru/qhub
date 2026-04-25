@@ -1,12 +1,14 @@
 "use server";
 
+import ROUTES from "@/constants/routes";
 import { Answer, Question } from "@/database";
 import Vote from "@/database/vote.model";
 import mongoose from "mongoose";
+import { revalidatePath } from "next/cache";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
 import { NotFoundError, UnauthorizedError } from "../http-errors";
-import { CreateVoteSchema, UpdateVoteCountSchema } from "../validations";
+import { CreateVoteSchema, HasVotedSchema, UpdateVoteCountSchema } from "../validations";
 
 export async function updateVoteCount(
   params: UpdateVoteCountParams,
@@ -70,10 +72,8 @@ export async function createVote(params: CreateVoteParams): Promise<ActionRespon
       } else {
         // if the user has already voted on the same content with a different vote type, update the vote
         await Vote.findByIdAndUpdate(existingVote._id, { voteType }, { new: true, session });
-        await updateVoteCount(
-          { targetId, targetType, voteType, change: existingVote.voteType === "upvote" ? -1 : 1 },
-          session
-        );
+        await updateVoteCount({ targetId, targetType, voteType: existingVote.voteType, change: -1 }, session);
+        await updateVoteCount({ targetId, targetType, voteType, change: 1 }, session);
       }
     } else {
       // if the user has not voted on the content, create a new vote
@@ -84,6 +84,8 @@ export async function createVote(params: CreateVoteParams): Promise<ActionRespon
     }
 
     await session.commitTransaction();
+
+    revalidatePath(ROUTES.QUESTION(targetId));
     return { success: true };
   } catch (error) {
     await session.abortTransaction();
@@ -91,4 +93,27 @@ export async function createVote(params: CreateVoteParams): Promise<ActionRespon
   } finally {
     await session.endSession();
   }
+}
+
+export async function hasVoted(params: HasVotedParams): Promise<ActionResponse<HasVotedResponse>> {
+  const validationResult = await action({ params, schema: HasVotedSchema, authorize: true });
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { targetId, targetType } = validationResult.params!;
+  const userId = validationResult.session?.user.id;
+  if (!userId) {
+    return handleError(new UnauthorizedError()) as ErrorResponse;
+  }
+
+  const vote = await Vote.findOne({ author: userId, actionId: targetId, actionType: targetType });
+  if (!vote) {
+    return { success: true, data: { hasUpvoted: false, hasDownvoted: false } };
+  }
+
+  return {
+    success: true,
+    data: { hasUpvoted: vote.voteType === "upvote", hasDownvoted: vote.voteType === "downvote" },
+  };
 }
