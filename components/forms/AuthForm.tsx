@@ -1,29 +1,29 @@
 "use client";
-import { Controller, DefaultValues, FieldValues, Path, SubmitHandler, useForm } from "react-hook-form";
+import { Controller, DefaultValues, FieldValues, Path, Resolver, SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import ROUTES from "@/constants/routes";
 import { capitalize } from "@/lib/utils";
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 
 interface AuthFormProps<T extends FieldValues> {
-  schema: z.ZodType<T>;
-  defaultValues: T;
+  schema: z.ZodType<T, FieldValues>;
+  defaultValues: DefaultValues<T>;
   formType: "sign-in" | "sign-up";
   onSubmit: (data: T) => Promise<ActionResponse>;
 }
 
 const AuthForm = <T extends FieldValues>({ schema, defaultValues, formType, onSubmit }: AuthFormProps<T>) => {
   const router = useRouter();
-  const form = useForm<z.infer<typeof schema>>({
-    resolver: standardSchemaResolver(schema),
-    defaultValues: defaultValues as DefaultValues<T>,
+  const form = useForm<T>({
+    resolver: zodResolver(schema) as Resolver<T>,
+    defaultValues,
   });
 
   const handleSubmit: SubmitHandler<T> = async (data) => {
