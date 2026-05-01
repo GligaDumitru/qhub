@@ -2,6 +2,7 @@ import QuestionCard from "@/components/cards/QuestionCard";
 import DataRenderer from "@/components/DataRenderer";
 import CommonFilter from "@/components/filters/CommonFilter";
 import HomeFilter from "@/components/filters/HomeFilter";
+import Pagination from "@/components/Pagination";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import { HomePageFilters } from "@/constants/filters";
@@ -15,7 +16,7 @@ const Home = async ({
 }: {
   searchParams: Promise<{ query: string; filter: string; page: string; pageSize: string }>;
 }) => {
-  const { page = 1, pageSize = 10, query, filter } = await searchParams;
+  const { page, pageSize, query, filter } = await searchParams;
 
   const { success, data, error } = await getQuestions({
     page: Number(page) || 1,
@@ -24,7 +25,7 @@ const Home = async ({
     filter: filter || "",
   });
 
-  const { questions = [] } = data || {};
+  const { questions = [], isNext } = data || {};
 
   return (
     <>
@@ -53,6 +54,7 @@ const Home = async ({
           questions.map((question) => <QuestionCard key={question._id.toString()} question={question} />)
         }
       />
+      <Pagination page={page} isNext={isNext || false} />
     </>
   );
 };
