@@ -1,6 +1,8 @@
 import QuestionCard from "@/components/cards/QuestionCard";
 import DataRenderer from "@/components/DataRenderer";
+import CommonFilter from "@/components/filters/CommonFilter";
 import LocalSearch from "@/components/search/LocalSearch";
+import { CollectionFilters } from "@/constants/filters";
 import ROUTES from "@/constants/routes";
 import { EMPTY_QUESTION } from "@/constants/states";
 import { getSavedQuestions } from "@/lib/actions/collection.action";
@@ -24,13 +26,14 @@ const CollectionsPage = async ({
   return (
     <>
       <h1 className="h1-bold text-dark100_light900">Saved Questions</h1>
-      <section className="mt-11">
+      <section className="mt-11 flex justify-between gap-5 max-sm:flex-col">
         <LocalSearch
           route={ROUTES.COLLECTIONS}
           imgSrc="/icons/search.svg"
           placeholder="Search questions..."
           otherClasses="flex-1"
         />
+        <CommonFilter filters={CollectionFilters} otherClasses="min-h-[56px] sm:min-w-[170px]" />
       </section>
       <DataRenderer
         success={success}

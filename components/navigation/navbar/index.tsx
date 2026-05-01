@@ -1,8 +1,9 @@
 import { auth } from "@/auth";
+import UserAvatar from "@/components/UserAvatar";
 import Image from "next/image";
 import Link from "next/link";
+import MobileNavigation from "./MobileNavigation";
 import Theme from "./Theme";
-import UserAvatar from "@/components/UserAvatar";
 
 const Navbar = async () => {
   const session = await auth();
@@ -19,6 +20,7 @@ const Navbar = async () => {
       <div className="flex-between gap-5">
         <Theme />
         {session ? <UserAvatar id={session.user?.id} name={session.user?.name} imageUrl={session.user?.image} /> : null}
+        <MobileNavigation />
       </div>
     </nav>
   );
