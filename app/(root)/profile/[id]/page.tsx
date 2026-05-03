@@ -114,13 +114,13 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
       />
 
       <section className="mt-10 flex gap-10">
-        <Tabs defaultValue="top-posts" className="flex-2">
+        <Tabs defaultValue="answers" className="flex-2">
           <TabsList className="background-light800_dark400 min-h-[42px] p-1">
             <TabsTrigger value="top-posts" className="tab">
               Top Posts
             </TabsTrigger>
-            <TabsTrigger value="newest" className="tab">
-              Newest
+            <TabsTrigger value="answers" className="tab">
+              Answers
             </TabsTrigger>
           </TabsList>
           <TabsContent value="top-posts" className="mt-5 flex w-full flex-col gap-6">
@@ -130,12 +130,18 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
               error={questionsError}
               empty={EMPTY_QUESTION}
               render={(questions) =>
-                questions.map((question) => <QuestionCard key={question._id.toString()} question={question} />)
+                questions.map((question) => (
+                  <QuestionCard
+                    key={question._id.toString()}
+                    question={question}
+                    showActionBtns={loggedInUser?.user?.id === question.author._id.toString()}
+                  />
+                ))
               }
             />
             <Pagination page={Number(pagePosts) || 1} isNext={isNext || false} pageKey="pagePosts" />
           </TabsContent>
-          <TabsContent value="newest" className="flex w-full flex-col gap-6">
+          <TabsContent value="answers" className="flex w-full flex-col gap-6">
             <DataRenderer
               success={answersSuccess}
               data={answers}
@@ -149,6 +155,7 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
                     content={answer.content.slice(0, 100)}
                     containerClasses="card-wrapper rounded-[10px] px-7 py-9 sm:px-11"
                     showReadMore
+                    showActionBtns={loggedInUser?.user?.id === answer.author._id.toString()}
                   />
                 ))
               }

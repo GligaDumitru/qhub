@@ -7,11 +7,13 @@ import { hasVoted } from "@/lib/actions/vote.action";
 import { Suspense } from "react";
 import UserAvatar from "../UserAvatar";
 import Preview from "../editor/Preview";
+import EditDeleteAction from "../user/EditDeleteAction";
 import Votes from "../votes/Votes";
 
 interface Props extends Answer {
   containerClasses?: string;
   showReadMore?: boolean;
+  showActionBtns?: boolean;
 }
 const AnswerCard = ({
   _id,
@@ -23,11 +25,17 @@ const AnswerCard = ({
   question,
   containerClasses,
   showReadMore = false,
+  showActionBtns = false,
 }: Props) => {
   const hasVotedPromise = hasVoted({ targetId: _id, targetType: "answer" });
   return (
-    <article className={cn("light-border border-b py-10", containerClasses)}>
+    <article className={cn("light-border relative border-b py-10", containerClasses)}>
       <span id={`answer-${_id}`} className="hash-span" />
+      {showActionBtns && (
+        <div className="background-light800 flex-center absolute top-5 right-5 size-9 rounded-full">
+          <EditDeleteAction type="Answer" itemId={_id} />
+        </div>
+      )}
 
       <div className="mb-5 flex flex-col-reverse justify-between gap-5 sm:flex-row sm:items-center sm:gap-2">
         <div className="flex flex-1 items-start gap-1 sm:items-center">
@@ -48,7 +56,7 @@ const AnswerCard = ({
           </Link>
         </div>
 
-        <div className="flex justify-end">
+        <div className="hidden justify-end md:flex">
           <Suspense fallback={<div>Loading...</div>}>
             <Votes
               hasVotedPromise={hasVotedPromise}

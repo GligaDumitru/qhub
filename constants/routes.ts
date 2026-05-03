@@ -8,6 +8,7 @@ const ROUTES = {
   SIGN_UP: "/sign-up",
   ASK_QUESTION: "/ask-question",
   QUESTION: (id: string) => `/questions/${id}`,
+  EDIT_QUESTION: (id: string) => `/questions/${id}/edit`,
   PROFILE: (id: string) => `/profile/${id}`,
   TAG: (id: string) => `/tags/${id}`,
 };

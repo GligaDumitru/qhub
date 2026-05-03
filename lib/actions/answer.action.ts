@@ -1,13 +1,13 @@
 "use server";
 import ROUTES from "@/constants/routes";
-import { Answer, Question } from "@/database";
+import { Answer, Question, Vote } from "@/database";
 import { IAnswerDoc } from "@/database/answer.model";
 import mongoose, { QueryFilter } from "mongoose";
 import { revalidatePath } from "next/cache";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
 import { NotFoundError, UnauthorizedError } from "../http-errors";
-import { AnswerServerSchema, GetAnswersSchema } from "../validations";
+import { AnswerServerSchema, DeleteAnswerSchema, GetAnswersSchema } from "../validations";
 
 export async function createAnswer(params: CreateAnswerParams): Promise<ActionResponse<IAnswerDoc>> {
   const validationResult = await action({ params, schema: AnswerServerSchema, authorize: true });
@@ -91,6 +91,51 @@ export async function getAnswers(
       success: true,
       data: { answers: JSON.parse(JSON.stringify(answers)) as Answer[], isNext, totalAnswers },
     };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function deleteAnswer(params: DeleteAnswerParams): Promise<ActionResponse> {
+  const validationResult = await action({ params, schema: DeleteAnswerSchema, authorize: true });
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { answerId } = validationResult.params!;
+  const userId = validationResult.session?.user.id;
+  if (!userId) {
+    return handleError(new UnauthorizedError()) as ErrorResponse;
+  }
+
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const answer = await Answer.findById(answerId).session(session);
+    if (!answer) {
+      throw new NotFoundError("Answer not found");
+    }
+
+    if (answer.author.toString() !== userId) {
+      throw new UnauthorizedError("You are not authorized to delete this answer");
+    }
+
+    // Decrease the answer count for the associated question
+    await Question.findByIdAndUpdate(answer.question, { $inc: { answers: -1 } }, { returnDocument: "after", session });
+
+    // Remove all upvote/downvote documents linked to this answer
+    await Vote.deleteMany({ actionId: answerId, actionType: "answer" }).session(session);
+
+    // Delete the answer
+    await Answer.findByIdAndDelete(answerId).session(session);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    revalidatePath(ROUTES.PROFILE(userId));
+    return { success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
