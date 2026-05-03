@@ -2,7 +2,7 @@
 
 import { Answer, Question } from "@/database";
 import User, { IUserDoc } from "@/database/user.model";
-import { QueryFilter } from "mongoose";
+import { PipelineStage, QueryFilter, Types } from "mongoose";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
 import { NotFoundError } from "../http-errors";
@@ -10,6 +10,7 @@ import {
   GetUserQuestionsSchema,
   GetUsersAnswersSchema,
   GetUserSchema,
+  GetUserTagsSchema,
   PaginatedSearchParamsSchema,
 } from "../validations";
 
@@ -146,6 +147,78 @@ export async function getUserAnswers(
     const answers = await Answer.find({ author: userId }).populate("author", "name image").skip(skip).limit(limit);
     const isNext = totalAnswers > skip + limit;
     return { success: true, data: { answers: JSON.parse(JSON.stringify(answers)) as Answer[], isNext } };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function getUserTags(params: GetUserTagsParams): Promise<
+  ActionResponse<{
+    tags: {
+      _id: string;
+      name: string;
+      count: number;
+    }[];
+  }>
+> {
+  const validationResult = await action({ params, schema: GetUserTagsSchema });
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { userId } = validationResult.params!;
+
+  try {
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          author: new Types.ObjectId(userId),
+        },
+      },
+      {
+        $unwind: "$tags",
+      },
+      {
+        $group: {
+          _id: "$tags",
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: "tags",
+          localField: "_id",
+          foreignField: "_id",
+          as: "tagInfo",
+        },
+      },
+      {
+        $unwind: "$tagInfo",
+      },
+      {
+        $sort: {
+          count: -1,
+        },
+      },
+      {
+        $limit: 5,
+      },
+      {
+        $project: {
+          _id: "$tagInfo._id",
+          name: "$tagInfo.name",
+          count: 1,
+        },
+      },
+    ];
+
+    const tags = await Question.aggregate(pipeline);
+    return {
+      success: true,
+      data: {
+        tags: JSON.parse(JSON.stringify(tags)) as { _id: string; name: string; count: number }[],
+      },
+    };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
