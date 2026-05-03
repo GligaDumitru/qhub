@@ -1,10 +1,12 @@
 "use server";
 
+import { Answer, Question } from "@/database";
 import User, { IUserDoc } from "@/database/user.model";
 import { QueryFilter } from "mongoose";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
-import { PaginatedSearchParamsSchema } from "../validations";
+import { NotFoundError } from "../http-errors";
+import { GetUserSchema, PaginatedSearchParamsSchema } from "../validations";
 
 export async function getUsers(
   params: PaginatedSearchParams
@@ -59,6 +61,38 @@ export async function getUsers(
     const users = await User.find(filterQuery).sort(sortQuery).skip(skip).limit(limit);
     const isNext = totalUsers > skip + limit;
     return { success: true, data: { users: JSON.parse(JSON.stringify(users)) as User[], isNext } };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function getUser(params: GetUserParams): Promise<
+  ActionResponse<{
+    user: User;
+    totalQuestions: number;
+    totalAnswers: number;
+  }>
+> {
+  const validationResult = await action({ params, schema: GetUserSchema });
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { userId } = validationResult.params!;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new NotFoundError(`User with id ${userId}`);
+    }
+
+    const totalQuestions = await Question.countDocuments({ author: userId });
+    const totalAnswers = await Answer.countDocuments({ author: userId });
+
+    return {
+      success: true,
+      data: { user: JSON.parse(JSON.stringify(user)) as User, totalQuestions, totalAnswers },
+    };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
