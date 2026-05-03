@@ -6,7 +6,12 @@ import { QueryFilter } from "mongoose";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
 import { NotFoundError } from "../http-errors";
-import { GetUserSchema, PaginatedSearchParamsSchema } from "../validations";
+import {
+  GetUserQuestionsSchema,
+  GetUsersAnswersSchema,
+  GetUserSchema,
+  PaginatedSearchParamsSchema,
+} from "../validations";
 
 export async function getUsers(
   params: PaginatedSearchParams
@@ -93,6 +98,54 @@ export async function getUser(params: GetUserParams): Promise<
       success: true,
       data: { user: JSON.parse(JSON.stringify(user)) as User, totalQuestions, totalAnswers },
     };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function getUserQuestions(
+  params: GetUserQuestionsParams
+): Promise<ActionResponse<{ questions: Question[]; isNext: boolean }>> {
+  const validationResult = await action({ params, schema: GetUserQuestionsSchema });
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { userId, page = 1, pageSize = 10 } = validationResult.params!;
+  const skip = (Number(page) - 1) * pageSize;
+  const limit = Number(pageSize);
+
+  try {
+    const totalQuestions = await Question.countDocuments({ author: userId });
+    const questions = await Question.find({ author: userId })
+      .populate("tags", "name")
+      .populate("author", "name image")
+      .skip(skip)
+      .limit(limit);
+    const isNext = totalQuestions > skip + limit;
+    return { success: true, data: { questions: JSON.parse(JSON.stringify(questions)) as Question[], isNext } };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function getUserAnswers(
+  params: GetUserAnswersParams
+): Promise<ActionResponse<{ answers: Answer[]; isNext: boolean }>> {
+  const validationResult = await action({ params, schema: GetUsersAnswersSchema });
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { userId, page = 1, pageSize = 10 } = validationResult.params!;
+  const skip = (Number(page) - 1) * pageSize;
+  const limit = Number(pageSize);
+
+  try {
+    const totalAnswers = await Answer.countDocuments({ author: userId });
+    const answers = await Answer.find({ author: userId }).populate("author", "name image").skip(skip).limit(limit);
+    const isNext = totalAnswers > skip + limit;
+    return { success: true, data: { answers: JSON.parse(JSON.stringify(answers)) as Answer[], isNext } };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

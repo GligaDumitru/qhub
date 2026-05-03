@@ -63,6 +63,7 @@ interface Answer {
   question: string;
   downvotes: number;
   createdAt: string;
+  question: string;
 }
 
 interface RouteParams {

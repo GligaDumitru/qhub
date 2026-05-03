@@ -1,15 +1,22 @@
 import { auth } from "@/auth";
+import AnswerCard from "@/components/cards/AnswerCard";
+import QuestionCard from "@/components/cards/QuestionCard";
+import DataRenderer from "@/components/DataRenderer";
+import Pagination from "@/components/Pagination";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileLink from "@/components/user/ProfileLink";
 import Stats from "@/components/user/Stats";
 import UserAvatar from "@/components/UserAvatar";
-import { getUser } from "@/lib/actions/user.action";
+import { EMPTY_ANSWERS, EMPTY_QUESTION } from "@/constants/states";
+import { getUser, getUserAnswers, getUserQuestions } from "@/lib/actions/user.action";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-const Profile = async ({ params }: RouteParams) => {
+const Profile = async ({ params, searchParams }: RouteParams) => {
   const { id } = await params;
+  const { pagePosts, pageAnswers, pageSize } = await searchParams;
 
   if (!id) notFound();
 
@@ -26,6 +33,27 @@ const Profile = async ({ params }: RouteParams) => {
     );
 
   const { user, totalQuestions, totalAnswers } = data!;
+  const {
+    success: questionsSuccess,
+    data: questionsData,
+    error: questionsError,
+  } = await getUserQuestions({
+    userId: id,
+    page: Number(pagePosts) || 1,
+    pageSize: Number(pageSize) || 10,
+  });
+  const { questions = [], isNext } = questionsData || {};
+
+  const {
+    success: answersSuccess,
+    data: answersData,
+    error: answersError,
+  } = await getUserAnswers({
+    userId: id,
+    page: Number(pageAnswers) || 1,
+    pageSize: Number(pageSize) || 10,
+  });
+  const { answers = [], isNext: answersIsNext } = answersData || {};
   const { _id, name, image, portfolio, location, createdAt, username, bio } = user;
 
   return (
@@ -74,6 +102,59 @@ const Profile = async ({ params }: RouteParams) => {
           BRONZE: 0,
         }}
       />
+
+      <section className="mt-10 flex gap-10">
+        <Tabs defaultValue="top-posts" className="flex-2">
+          <TabsList className="background-light800_dark400 min-h-[42px] p-1">
+            <TabsTrigger value="top-posts" className="tab">
+              Top Posts
+            </TabsTrigger>
+            <TabsTrigger value="newest" className="tab">
+              Newest
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="top-posts" className="mt-5 flex w-full flex-col gap-6">
+            <DataRenderer
+              success={questionsSuccess}
+              data={questions}
+              error={questionsError}
+              empty={EMPTY_QUESTION}
+              render={(questions) =>
+                questions.map((question) => <QuestionCard key={question._id.toString()} question={question} />)
+              }
+            />
+            <Pagination page={Number(pagePosts) || 1} isNext={isNext || false} pageKey="pagePosts" />
+          </TabsContent>
+          <TabsContent value="newest" className="flex w-full flex-col gap-6">
+            <DataRenderer
+              success={answersSuccess}
+              data={answers}
+              error={answersError}
+              empty={EMPTY_ANSWERS}
+              render={(answers) =>
+                answers.map((answer) => (
+                  <AnswerCard
+                    key={answer._id.toString()}
+                    {...answer}
+                    content={answer.content.slice(0, 100)}
+                    containerClasses="card-wrapper rounded-[10px] px-7 py-9 sm:px-11"
+                    showReadMore
+                  />
+                ))
+              }
+            />
+            <Pagination page={Number(pageAnswers) || 1} isNext={answersIsNext || false} pageKey="pageAnswers" />
+          </TabsContent>
+        </Tabs>
+
+        <div className="flex w-full min-w-[250px] flex-1 flex-col max-lg:hidden">
+          <h3 className="h3-bold text-dark200_light900">Top Tags</h3>
+
+          <div className="mt-7 flex flex-col gap-4">
+            <p>List of top tags.</p>
+          </div>
+        </div>
+      </section>
     </>
   );
 };
