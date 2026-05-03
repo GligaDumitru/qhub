@@ -7,6 +7,7 @@ import mongoose, { QueryFilter } from "mongoose";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
 import { NotFoundError, UnauthorizedError } from "../http-errors";
+import dbConnect from "../mongoose";
 import {
   AskQuestionSchema,
   EditQuestionSchema,
@@ -283,6 +284,16 @@ export async function incrementQuestionView(params: IncrementQuestionViewParams)
     await question.save();
 
     return { success: true, data: question };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function getHotQuestions(): Promise<ActionResponse<Question[]>> {
+  try {
+    await dbConnect();
+    const questions = await Question.find().sort({ views: -1, upvotes: -1 }).limit(5);
+    return { success: true, data: JSON.parse(JSON.stringify(questions)) };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
