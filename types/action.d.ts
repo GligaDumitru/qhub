@@ -91,3 +91,24 @@ interface DeleteQuestionParams {
 interface DeleteAnswerParams {
   answerId: string;
 }
+
+interface CreateInteractionParams {
+  action: (typeof import("@/constants/interaction").InteractionActionEnums)[number];
+  actionTarget: "question" | "answer";
+  actionId: string;
+  authorId: string;
+}
+
+interface UpdateReputationParams {
+  interaction: IInteractionDoc;
+  session: mongoose.ClientSession;
+  performerId: string;
+  authorId: string;
+}
+
+interface RecommendationParams {
+  userId: string;
+  query?: string;
+  skip: number;
+  limit: number;
+}

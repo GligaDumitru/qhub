@@ -4,10 +4,12 @@ import { Answer, Question, Vote } from "@/database";
 import { IAnswerDoc } from "@/database/answer.model";
 import mongoose, { QueryFilter } from "mongoose";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
 import { NotFoundError, UnauthorizedError } from "../http-errors";
 import { AnswerServerSchema, DeleteAnswerSchema, GetAnswersSchema } from "../validations";
+import { createInteraction } from "./interaction.action";
 
 export async function createAnswer(params: CreateAnswerParams): Promise<ActionResponse<IAnswerDoc>> {
   const validationResult = await action({ params, schema: AnswerServerSchema, authorize: true });
@@ -38,6 +40,16 @@ export async function createAnswer(params: CreateAnswerParams): Promise<ActionRe
 
     question.answers += 1;
     await question.save({ session });
+
+    // log the interaction
+    after(async () => {
+      await createInteraction({
+        action: "post",
+        actionId: answer._id.toString(),
+        actionTarget: "answer",
+        authorId: userId,
+      });
+    });
     await session.commitTransaction();
 
     revalidatePath(ROUTES.QUESTION(questionId));

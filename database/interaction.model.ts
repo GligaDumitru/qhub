@@ -1,3 +1,4 @@
+import { InteractionActionEnums } from "@/constants/interaction";
 import { model, models, Schema, Types } from "mongoose";
 
 export type TargetType = "question" | "answer";
@@ -17,6 +18,7 @@ const InteractionSchema = new Schema<IInteraction>(
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     action: {
       type: String,
+      enum: InteractionActionEnums,
       required: true,
     },
     actionType: { type: String, required: true, enum: ["question", "answer"] },

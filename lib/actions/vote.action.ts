@@ -5,10 +5,12 @@ import { Answer, Question } from "@/database";
 import Vote from "@/database/vote.model";
 import mongoose from "mongoose";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
 import { NotFoundError, UnauthorizedError } from "../http-errors";
 import { CreateVoteSchema, HasVotedSchema, UpdateVoteCountSchema } from "../validations";
+import { createInteraction } from "./interaction.action";
 
 export async function updateVoteCount(
   params: UpdateVoteCountParams,
@@ -61,6 +63,14 @@ export async function createVote(params: CreateVoteParams): Promise<ActionRespon
   session.startTransaction();
 
   try {
+    const Model = targetType === "question" ? Question : Answer;
+    const contentDoc = await Model.findById(targetId).session(session);
+    if (!contentDoc) {
+      throw new NotFoundError("Content not found");
+    }
+
+    const contentAuthorId = contentDoc.author.toString();
+
     const existingVote = await Vote.findOne({ author: userId, actionId: targetId, actionType: targetType }).session(
       session
     );
@@ -82,6 +92,16 @@ export async function createVote(params: CreateVoteParams): Promise<ActionRespon
       });
       await updateVoteCount({ targetId, targetType, voteType, change: 1 }, session);
     }
+
+    // log the interaction
+    after(async () => {
+      await createInteraction({
+        action: voteType,
+        actionId: targetId,
+        actionTarget: targetType,
+        authorId: contentAuthorId,
+      });
+    });
 
     await session.commitTransaction();
 

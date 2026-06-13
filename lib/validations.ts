@@ -1,3 +1,4 @@
+import { InteractionActionEnums } from "@/constants/interaction";
 import { z } from "zod";
 
 /** 24-char hex string matching MongoDB ObjectId (client-safe, no mongoose) */
@@ -220,7 +221,7 @@ export const DeleteAnswerSchema = z.object({
 });
 
 export const CreateInteractionSchema = z.object({
-  action: z.enum(["view", "upvote", "downvote", "bookmark", "post", "edit", "delete", "search"]),
+  action: z.enum(InteractionActionEnums),
   actionTarget: z.enum(["question", "answer"]),
   actionId: z.string().min(1),
   authorId: z.string().min(1),

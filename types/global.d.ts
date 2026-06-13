@@ -129,3 +129,9 @@ interface GlobalSearchedItem {
   type: "question" | "answer" | "user" | "tag";
   title: string;
 }
+
+interface Badges {
+  GOLD: number;
+  SILVER: number;
+  BRONZE: number;
+}
