@@ -105,23 +105,37 @@ interface Badges {
 }
 
 interface Job {
-  id?: string;
+  job_id?: string;
   employer_name?: string;
-  employer_logo?: string | undefined;
+  employer_logo?: string;
   employer_website?: string;
   job_employment_type?: string;
+  job_employment_types?: string[];
   job_title?: string;
   job_description?: string;
   job_apply_link?: string;
   job_city?: string;
   job_state?: string;
   job_country?: string;
+  job_location?: string;
+  job_min_salary?: number | null;
+  job_max_salary?: number | null;
+  job_salary?: number | null;
+  job_salary_period?: string | null;
+  industry?: string;
+  job_function?: string;
 }
 
 interface Country {
-  name: {
+  names: {
     common: string;
   };
+  cca2: string;
+}
+
+interface CountryFilter {
+  name: string;
+  value: string;
 }
 
 interface GlobalSearchedItem {

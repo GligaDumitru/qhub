@@ -54,3 +54,8 @@ export const EMPTY_USERS = {
   title: "No Users Found",
   message: "No users found. Be the first to sign up and start your journey.",
 };
+
+export const EMPTY_JOBS = {
+  title: "No Jobs Found",
+  message: "Try a different search term or location to discover more opportunities.",
+};
