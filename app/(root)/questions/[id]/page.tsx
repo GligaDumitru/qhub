@@ -12,10 +12,49 @@ import { hasSavedQuestion } from "@/lib/actions/collection.action";
 import { getQuestion, incrementQuestionView } from "@/lib/actions/question.action";
 import { hasVoted } from "@/lib/actions/vote.action";
 import { formatNumber, getTimeStamp } from "@/lib/utils";
+import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
 import { Suspense } from "react";
+
+export async function generateMetadata({ params }: RouteParams): Promise<Metadata> {
+  const { id } = await params;
+  const { success, data: question } = await getQuestion({ questionId: id as string });
+  if (!success || !question) {
+    return {
+      title: "Question not found",
+      description: "Question not found",
+      keywords: [],
+      publisher: "",
+      robots: "noindex, nofollow",
+      openGraph: {
+        title: "Question not found",
+        description: "Question not found",
+      },
+    };
+  }
+  return {
+    title: question.title,
+    description: question.content.slice(0, 100),
+    twitter: {
+      card: "summary_large_image",
+      title: question.title,
+      description: question.content.slice(0, 100),
+    },
+    keywords: question.tags.map((tag) => tag.name),
+    publisher: question.author.name,
+    robots: "index, follow",
+    openGraph: {
+      title: question.title,
+      description: question.content,
+      url: `https://devoverflow.com/questions/${id}`,
+      siteName: "Dev Overflow",
+      locale: "en_US",
+      type: "website",
+    },
+  };
+}
 
 const QuestionDetails = async ({ params, searchParams }: RouteParams) => {
   const { id } = await params;
