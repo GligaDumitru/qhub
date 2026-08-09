@@ -79,7 +79,7 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
             id={_id}
             name={name}
             imageUrl={image}
-            className="size-[140px] rounded-full object-cover"
+            className="size-35 rounded-full object-cover"
             fallbackClassName="text-6xl fond-bolder"
           />
 
