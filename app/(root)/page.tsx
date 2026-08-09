@@ -12,16 +12,16 @@ import { getQuestions } from "@/lib/actions/question.action";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Dev Overflow",
+  title: "QHub",
   description:
-    "Dev Overflow is a community-driven platform to ask and answer real-world programming questions. Learn, grow, and connect with developers around the world.",
+    "QHub is a community-driven platform to ask and answer real-world programming questions. Learn, grow, and connect with developers around the world.",
 
   generator: "Next.js",
-  applicationName: "Dev Overflow",
+  applicationName: "QHub",
   referrer: "origin-when-cross-origin",
 
   keywords: [
-    "Dev Overflow",
+    "QHub",
     "programming questions",
     "developer Q&A",
     "web development",
@@ -35,7 +35,7 @@ export const metadata = {
 
   authors: [{ name: "Daniel Gliga" }],
   creator: "Daniel Gliga",
-  publisher: "Dev Overflow",
+  publisher: "QHub",
 
   formatDetection: {
     email: false,

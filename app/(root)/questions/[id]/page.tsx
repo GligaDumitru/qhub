@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: RouteParams): Promise<Metadat
       title: question.title,
       description: question.content,
       url: `https://devoverflow.com/questions/${id}`,
-      siteName: "Dev Overflow",
+      siteName: "QHub",
       locale: "en_US",
       type: "website",
     },
