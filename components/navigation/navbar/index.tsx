@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import GlobalSearch from "@/components/search/GlobalSearch";
 import UserAvatar from "@/components/UserAvatar";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,7 +17,7 @@ const Navbar = async () => {
           Q<span className="text-primary-500">Hub</span>
         </p>
       </Link>
-      <p>Global Search</p>
+      <GlobalSearch />
       <div className="flex-between gap-5">
         <Theme />
         {session ? <UserAvatar id={session.user?.id} name={session.user?.name} imageUrl={session.user?.image} /> : null}
