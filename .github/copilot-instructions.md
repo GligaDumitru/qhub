@@ -73,6 +73,8 @@ Common pitfalls and notes
 - Package manager: `package-lock.json` means CI should use npm with `npm ci` to produce repeatable installs.
 - Node version mismatches produce cryptic build errors; default to Node 20.
 
+- Types: Do NOT use the `any` type in new code or suggested patches. Prefer explicit types, `Partial<T>`, `unknown`, `Record<string, unknown>`, or concrete interfaces. If a generated suggestion uses `any`, replace it with a specific type or `unknown` and explain why a broader type is necessary in the PR description.
+
 What to do when you start working on a PR
 
 1. Trust these instructions and the file locations above.
