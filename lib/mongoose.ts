@@ -2,19 +2,13 @@ import "@/database";
 import mongoose, { Mongoose } from "mongoose";
 import logger from "./logger";
 
-const MONGODB_URI = process.env.MONGODB_URI as string;
-
-if (!MONGODB_URI) {
-  throw new Error("MONGODB_URI is not defined");
-}
-
 interface MongooseCache {
   conn: Mongoose | null;
   promise: Promise<Mongoose> | null;
 }
 
 declare global {
-  var mongooseCached: MongooseCache;
+  var mongooseCached: MongooseCache | undefined;
 }
 
 let cached = global.mongooseCached;
@@ -23,6 +17,13 @@ if (!cached) {
 }
 
 const dbConnect = async (): Promise<Mongoose> => {
+  const MONGODB_URI = process.env.MONGODB_URI as string | undefined;
+
+  if (!MONGODB_URI) {
+    // Throw only when attempting to connect at runtime.
+    throw new Error("MONGODB_URI is not defined");
+  }
+
   if (cached.conn) {
     return cached.conn;
   }
