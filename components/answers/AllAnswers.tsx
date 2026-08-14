@@ -27,7 +27,6 @@ const AllAnswers = ({ success, data, error, totalAnswers, page, isNext }: AllAns
         empty={EMPTY_ANSWERS}
         render={(answers) => answers.map((answer) => <AnswerCard key={answer._id} {...answer} />)}
       />
-      <span>ss</span>
       <Pagination page={page} isNext={isNext || false} />
     </div>
   );
