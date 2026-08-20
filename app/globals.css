@@ -589,31 +589,21 @@ code {
   }
 }
 
-/* Page background: black with two responsive ovals in opposite corners.
-   Implemented on `html` so it's global and easy to tweak via CSS variables. */
-html {
-  /* background-color: #000; */
-}
-
 :root {
-  /* design-based values */
-  --oval-pref-vw: 43.75vw; /* 630 / 1440 */
-  --oval-aspect: 1.4603; /* 920 / 630 */
+  --oval-pref-vw: 43.75vw;
+  --oval-aspect: 1.4603;
 
-  /* min and max you can tune */
-  --oval-min: 220px; /* mobile minimum width */
-  --oval-max: 760px; /* desktop cap */
+  --oval-min: 220px;
+  --oval-max: 760px;
 
-  --oval-left-blur: clamp(20px, 4vw, 120px); /* mobile → desktop */
-  --oval-right-blur: clamp(12px, 3vw, 80px);
+  --oval-left-blur: 15px; /* mobile → desktop */
+  --oval-right-blur: 10px;
 }
 
-/* computed responsive size */
 :root {
   --oval-size: clamp(var(--oval-min), var(--oval-pref-vw), var(--oval-max));
 }
 
-/* place top-left oval */
 html.dark::before {
   content: "";
   position: fixed;
@@ -621,20 +611,18 @@ html.dark::before {
   top: calc(-1 * (var(--oval-size) * 0.48)); /* nudge up   - tune multiplier */
   width: var(--oval-size);
   height: calc(var(--oval-size) * var(--oval-aspect));
-  background: #0b0b16; /* raw oval color */
-  /* background: red; */
+  background: #0b0b16;
   border-radius: 50%;
   pointer-events: none;
   z-index: -1;
   filter: blur(var(--oval-left-blur));
 }
 
-/* opposite corner (smaller oval) — pick smaller pref and aspect */
 :root {
   --oval2-pref-vw: 28vw;
   --oval2-min: 160px;
   --oval2-max: 520px;
-  --oval2-aspect: 0.75; /* e.g. 160 / 220 */
+  --oval2-aspect: 0.75;
   --oval2-size: clamp(var(--oval2-min), var(--oval2-pref-vw), var(--oval2-max));
 }
 
@@ -646,14 +634,12 @@ html.dark::after {
   width: var(--oval2-size);
   height: calc(var(--oval2-size) * var(--oval2-aspect));
   background: #0b0b16;
-  /* background: red; */
   border-radius: 50%;
   pointer-events: none;
   z-index: -1;
   filter: blur(var(--oval-right-blur));
 }
 
-/* mobile tweaks if you want even smaller shapes or different offsets */
 @media (max-width: 640px) {
   :root {
     --oval-min: 180px;
