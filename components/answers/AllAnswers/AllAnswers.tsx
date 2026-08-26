@@ -1,9 +1,9 @@
 import { AnswerFilters } from "@/constants/filters";
 import { EMPTY_ANSWERS } from "@/constants/states";
 import AnswerCard from "@/components/cards/AnswerCard";
-import DataRenderer from "@/components/DataRenderer";
+import DataRenderer from "@/components/shared/DataRenderer";
 import CommonFilter from "@/components/filters/CommonFilter";
-import Pagination from "@/components/Pagination";
+import Pagination from "@/components/shared/Pagination";
 
 interface AllAnswersProps extends ActionResponse<Answer[]> {
   totalAnswers: number;

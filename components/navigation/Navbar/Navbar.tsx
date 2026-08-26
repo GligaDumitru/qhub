@@ -1,10 +1,10 @@
 import { auth } from "@/auth";
 import GlobalSearch from "@/components/search/GlobalSearch";
-import UserAvatar from "@/components/UserAvatar";
+import UserAvatar from "@/components/user/UserAvatar";
 import Image from "next/image";
 import Link from "next/link";
-import MobileNavigation from "./MobileNavigation";
-import Theme from "./Theme";
+import MobileNavigation from "@/components/navigation/MobileNavigation";
+import Theme from "@/components/navigation/Theme";
 
 const Navbar = async () => {
   const session = await auth();

@@ -1,7 +1,7 @@
 import JobCard from "@/components/cards/JobCard";
-import DataRenderer from "@/components/DataRenderer";
+import DataRenderer from "@/components/shared/DataRenderer";
 import CommonFilter from "@/components/filters/CommonFilter";
-import Pagination from "@/components/Pagination";
+import Pagination from "@/components/shared/Pagination";
 import LocalSearch from "@/components/search/LocalSearch";
 import ROUTES from "@/constants/routes";
 import { EMPTY_JOBS } from "@/constants/states";

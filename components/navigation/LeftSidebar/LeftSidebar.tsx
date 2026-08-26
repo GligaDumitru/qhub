@@ -4,7 +4,7 @@ import { LogOut } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import NavLinks from "@/components/navigation/navbar/NavLinks";
+import NavLinks from "@/components/navigation/NavLinks";
 
 const LeftSidebar = async () => {
   const session = await auth();

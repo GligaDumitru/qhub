@@ -9,7 +9,7 @@ import {
   getCountryFlagIcon,
 } from "@/lib/job.utils";
 
-import Metric from "@/components/Metric";
+import Metric from "@/components/shared/Metric";
 
 interface Props {
   job: Job;

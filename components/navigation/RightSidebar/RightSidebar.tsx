@@ -4,7 +4,7 @@ import { getTopTags } from "@/lib/actions/tag.action";
 import Image from "next/image";
 import Link from "next/link";
 import TagCard from "@/components/cards/TagCard";
-import DataRenderer from "@/components/DataRenderer";
+import DataRenderer from "@/components/shared/DataRenderer";
 
 const RightSidebar = async () => {
   const [

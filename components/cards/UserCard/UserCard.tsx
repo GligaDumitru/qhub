@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import ROUTES from "@/constants/routes";
 
-import UserAvatar from "@/components/UserAvatar";
+import UserAvatar from "@/components/user/UserAvatar";
 
 const UserCard = ({ _id, name, image, username }: User) => (
   <div className="shadow-light100_darknone xs:w-[230px] w-full">

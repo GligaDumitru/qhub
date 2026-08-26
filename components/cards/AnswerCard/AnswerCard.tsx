@@ -5,7 +5,7 @@ import { cn, getTimeStamp } from "@/lib/utils";
 
 import { hasVoted } from "@/lib/actions/vote.action";
 import { Suspense } from "react";
-import UserAvatar from "@/components/UserAvatar";
+import UserAvatar from "@/components/user/UserAvatar";
 import Preview from "@/components/editor/Preview";
 import EditDeleteAction from "@/components/user/EditDeleteAction";
 import Votes from "@/components/votes/Votes";

@@ -3,7 +3,7 @@ import Link from "next/link";
 import ROUTES from "@/constants/routes";
 
 import { getTimeStamp } from "@/lib/utils";
-import Metric from "@/components/Metric";
+import Metric from "@/components/shared/Metric";
 import EditDeleteAction from "@/components/user/EditDeleteAction";
 import TagCard from "@/components/cards/TagCard";
 

@@ -8,7 +8,7 @@ jest.mock("@/components/cards/AnswerCard", () => ({
   default: (props: { _id?: string }) => <div data-testid="answer-card">{props._id}</div>,
 }));
 
-jest.mock("@/components/DataRenderer", () => ({
+jest.mock("@/components/shared/DataRenderer", () => ({
   __esModule: true,
   default: ({ data, render }: { data?: unknown; render?: (d: unknown) => React.ReactNode }) => (
     <div data-testid="data-renderer">{render?.(data)}</div>
@@ -20,7 +20,7 @@ jest.mock("@/components/filters/CommonFilter", () => ({
   default: ({ filters }: { filters?: unknown }) => <div data-testid="common-filter">{JSON.stringify(filters)}</div>,
 }));
 
-jest.mock("@/components/Pagination", () => ({
+jest.mock("@/components/shared/Pagination", () => ({
   __esModule: true,
   default: ({ page, isNext }: { page: number; isNext: boolean }) => (
     <div data-testid="pagination">
