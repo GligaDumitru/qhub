@@ -45,8 +45,6 @@ export async function POST(request: Request) {
 For code blocks, use short-form smaller case language identifiers (e.g., 'js' for JavaScript, 'py' for Python, 'ts' for TypeScript, 'html' for HTML, 'css' for CSS, etc.).`,
     });
 
-    console.log("text", text);
-
     return NextResponse.json({ success: true, data: text }, { status: 200 });
   } catch (error) {
     console.error(error);

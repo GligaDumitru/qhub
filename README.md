@@ -142,6 +142,6 @@ Run `pnpm run` to see all available scripts.
 
 ## Where to find things
 
-- Backlog and ADRs: `docs/` (e.g., `docs/ADR-2026-08-12-qhub-technical-backlog.md`, `docs/backlog-2026-08-12.md`)
+- Backlog and ADRs: `docs/` (currently empty — add ADRs/backlog entries here as they're written)
 - DB models: `database/`
 - Shared utils: `lib/`
