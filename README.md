@@ -9,22 +9,23 @@ This README focuses on developer onboarding: setup, environment, scripts, testin
 ## Quickstart (local development)
 
 1. Install Node (recommended >= 24). Use `nvm` or similar to manage versions.
-2. Install dependencies:
+2. Install [pnpm](https://pnpm.io/installation) (>= 10) if you don't have it, e.g. `corepack enable` or `npm install -g pnpm`.
+3. Install dependencies:
 
 ```bash
-npm ci
+pnpm install --frozen-lockfile
 ```
 
-3. Set up local environment variables by creating `.env.local` (see Environment variables below).
+4. Set up local environment variables by creating `.env.local` (see Environment variables below).
 
-4. Start the development server:
+5. Start the development server:
 
 ```bash
-npm run dev
+pnpm dev
 # Open http://localhost:3000
 ```
 
-Notes: `npm ci` is preferred in CI for reproducible installs. Use `npm install` when adding/updating packages locally.
+Notes: `pnpm install --frozen-lockfile` is preferred in CI for reproducible installs. Use `pnpm install` when adding/updating packages locally.
 
 ---
 
@@ -70,24 +71,24 @@ CI: Set the same variables in your CI provider's secrets (e.g., GitHub Actions S
 
 ## Scripts
 
-Important npm scripts (defined in `package.json`):
+Important pnpm scripts (defined in `package.json`):
 
-- `npm run dev` — Start Next dev server.
-- `npm run build` — Create production build.
-- `npm start` — Start production server after build.
-- `npm run lint` — Run ESLint.
-- `npm run lint:fix` — Run ESLint with `--fix`.
-- `npm run type-check` — Run TypeScript type-check (`tsc --noEmit`).
-- `npm run format` — Run Prettier to format files.
-- `npm run test:e2e` — Run Playwright tests (if present).
+- `pnpm dev` — Start Next dev server.
+- `pnpm build` — Create production build.
+- `pnpm start` — Start production server after build.
+- `pnpm lint` — Run ESLint.
+- `pnpm lint:fix` — Run ESLint with `--fix`.
+- `pnpm type-check` — Run TypeScript type-check (`tsc --noEmit`).
+- `pnpm format` — Run Prettier to format files.
+- `pnpm test:e2e` — Run Playwright tests (if present).
 
-Run `npm run` to see all available scripts.
+Run `pnpm run` to see all available scripts.
 
 ---
 
 ## Developer tooling and conventions
 
-- ESLint + Prettier configured. Use `npm run lint:fix` and `npm run format` before committing.
+- ESLint + Prettier configured. Use `pnpm lint:fix` and `pnpm format` before committing.
 - Husky + lint-staged are installed to run linters/formatters on staged files automatically.
 - TypeScript: `strict` mode is enabled — keep types up-to-date when changing public interfaces.
 
@@ -102,7 +103,7 @@ Run `npm run` to see all available scripts.
 
 ## Testing
 
-- End-to-end: Playwright is available in devDependencies. Currently no Playwright tests are included by default. You can scaffold tests in `tests/` and run them with `npm run test:e2e`.
+- End-to-end: Playwright is available in devDependencies. Currently no Playwright tests are included by default. You can scaffold tests in `tests/` and run them with `pnpm test:e2e`.
 - Unit tests: Not included by default. Consider adding `vitest` or `jest` for component and utility tests.
 
 ---
@@ -117,7 +118,7 @@ Run `npm run` to see all available scripts.
 ## Adding a new feature / PR checklist
 
 1. Branch from `main` and use descriptive branch names (e.g., `feat/add-login` or `fix/db-timeout`).
-2. Run `npm run lint` and `npm run type-check` locally.
+2. Run `pnpm lint` and `pnpm type-check` locally.
 3. Add/adjust unit and e2e tests where relevant.
 4. Ensure `README`, `docs/` or ADRs are updated for architectural changes.
 
@@ -127,7 +128,7 @@ Run `npm run` to see all available scripts.
 
 1. Fork or create a branch on the main repo.
 2. Follow the PR checklist above.
-3. Run Husky hooks locally (`npm run prepare` installs them) — commit will run linters on staged files.
+3. Run Husky hooks locally (`pnpm run prepare` installs them) — commit will run linters on staged files.
 4. Open a PR and reference relevant backlog/ADR items from `docs/`.
 
 ---
