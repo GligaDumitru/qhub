@@ -131,6 +131,7 @@ const AnswerForm = ({
         </Button>
       </div>
       <Form {...form}>
+        {/* eslint-disable-next-line react-hooks/refs -- handleCreateAnswer only reads editorRef.current inside startTransition on submit, never during render */}
         <form className="mt-6 flex w-full flex-col gap-10" onSubmit={form.handleSubmit(handleCreateAnswer)}>
           <FormField
             control={form.control}
