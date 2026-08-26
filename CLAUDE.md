@@ -30,6 +30,8 @@ pnpm test:e2e                   # playwright test (no e2e tests currently checke
 
 Husky pre-commit runs `lint-staged` (eslint --fix + prettier on staged files). Hooks use Husky v9 format (no `_/husky.sh` shim).
 
+Jest's default `testEnvironment` is `jsdom` (set in `jest.config.mjs`). A test that imports anything touching `next/server` (e.g. `NextResponse`, so `lib/handlers/error.ts`) needs Node's native `Request`/`Response` globals instead — add `/** @jest-environment node */` as the first line of that test file, or jsdom throws `ReferenceError: Request is not defined`.
+
 ## Architecture
 
 ### Two parallel data-access paths
