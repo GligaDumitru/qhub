@@ -82,8 +82,7 @@ const TopMatch = ({ onResultSelect }: { onResultSelect: (href: string) => void }
         });
 
         setResults(res.data ?? []);
-      } catch (error) {
-        console.log(error);
+      } catch {
         setResults([]);
       } finally {
         setLoading(false);

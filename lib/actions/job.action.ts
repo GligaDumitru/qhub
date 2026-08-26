@@ -32,7 +32,6 @@ export async function getJobs(params: PaginatedSearchParams): Promise<
     });
 
     if (!response.ok) {
-      console.log(response);
       throw new Error(`JSearch API error: ${response.status} ${response.statusText}`);
     }
     const data = await response.json();
