@@ -65,7 +65,7 @@ NextAuth v5 (`auth.ts`): GitHub, Google, and Credentials providers. The `jwt`/`s
 
 ### UI
 
-`components/ui/*` is shadcn/ui (`new-york` style, lucide-react icons — see `components.json` for path aliases). The MDX editor (`components/editor/Editor.tsx`, wraps `@mdxeditor/editor`) is always dynamically imported with `ssr: false` (see usage in `AnswerForm.tsx` / `QuestionForm.tsx`) since it's not SSR-safe.
+`components/ui/*` is shadcn/ui (`new-york` style, lucide-react icons — see `components.json` for path aliases) and is kept flat, matching what the shadcn CLI writes — don't folderize these. Everything else under `components/` (except `editor/` and `navigation/navbar/`, which are small multi-component barrels) follows a folder-per-component pattern: `ComponentName/ComponentName.tsx` plus `ComponentName/index.ts` re-exporting the default, so `@/components/.../ComponentName` still resolves. Colocate a component's test as `ComponentName/ComponentName.test.tsx`. Use `@/components/...` absolute imports between components (not relative `../`), since relative paths break the moment a file moves folders. The MDX editor (`components/editor/Editor.tsx`, wraps `@mdxeditor/editor`) is always dynamically imported with `ssr: false` (see usage in `AnswerForm.tsx` / `QuestionForm.tsx`) since it's not SSR-safe.
 
 ### Routing
 
