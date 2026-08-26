@@ -1,5 +1,5 @@
 import LeftSidebar from "@/components/navigation/LeftSidebar";
-import Navbar from "@/components/navigation/navbar";
+import Navbar from "@/components/navigation/Navbar";
 import RightSidebar from "@/components/navigation/RightSidebar";
 import "@mdxeditor/editor/style.css";
 

@@ -1,6 +1,6 @@
 import QuestionCard from "@/components/cards/QuestionCard";
 import TagCard from "@/components/cards/TagCard";
-import DataRenderer from "@/components/DataRenderer";
+import DataRenderer from "@/components/shared/DataRenderer";
 import LocalSearch from "@/components/search/LocalSearch";
 import ROUTES from "@/constants/routes";
 import { EMPTY_QUESTION } from "@/constants/states";

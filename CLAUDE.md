@@ -65,7 +65,7 @@ NextAuth v5 (`auth.ts`): GitHub, Google, and Credentials providers. The `jwt`/`s
 
 ### UI
 
-`components/ui/*` is shadcn/ui (`new-york` style, lucide-react icons — see `components.json` for path aliases). The MDX editor (`components/editor/Editor.tsx`, wraps `@mdxeditor/editor`) is always dynamically imported with `ssr: false` (see usage in `AnswerForm.tsx` / `QuestionForm.tsx`) since it's not SSR-safe.
+`components/ui/*` is shadcn/ui (`new-york` style, lucide-react icons — see `components.json` for path aliases) and is kept flat, matching what the shadcn CLI writes — don't folderize these. Everywhere else, every folder directly under `components/` is a lowercase category (`cards/`, `forms/`, `navigation/`, `shared/`, `user/`, ...), and every component lives one level deeper in its own PascalCase folder: `ComponentName/ComponentName.tsx` plus `ComponentName/index.ts` re-exporting the default, so `@/components/.../ComponentName` still resolves. Don't nest a category folder inside a component folder (or vice versa) — if a "component" folder needs sub-parts (like `navigation/Navbar/` needing `NavLinks`), promote the sub-parts to sibling component folders in the same category rather than nesting them, so casing stays a reliable category-vs-component signal at every level. Colocate a component's test as `ComponentName/ComponentName.test.tsx`. Use `@/components/...` absolute imports between components (not relative `../`), since relative paths break the moment a file moves folders. The MDX editor (`components/editor/Editor/Editor.tsx`, wraps `@mdxeditor/editor`) is always dynamically imported with `ssr: false` (see usage in `AnswerForm.tsx` / `QuestionForm.tsx`) since it's not SSR-safe.
 
 ### Routing
 

@@ -1,8 +1,8 @@
 import QuestionCard from "@/components/cards/QuestionCard";
-import DataRenderer from "@/components/DataRenderer";
+import DataRenderer from "@/components/shared/DataRenderer";
 import CommonFilter from "@/components/filters/CommonFilter";
 import HomeFilter from "@/components/filters/HomeFilter";
-import Pagination from "@/components/Pagination";
+import Pagination from "@/components/shared/Pagination";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import { HomePageFilters } from "@/constants/filters";
