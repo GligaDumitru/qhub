@@ -1,13 +1,68 @@
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+import slugify from "slugify";
 import Account, { IAccountDoc } from "./database/account.model";
 import User from "./database/user.model";
-import { api } from "./lib/api";
 import dbConnect from "./lib/mongoose";
 import { SignInSchema } from "./lib/validations";
+
+async function upsertOAuthAccount({
+  provider,
+  providerAccountId,
+  user,
+}: SignInWithOAuthProps): Promise<IAccountDoc | null> {
+  await dbConnect();
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const slugifiedUsername = slugify(user.username, {
+      lower: true,
+      strict: true,
+      trim: true,
+    });
+
+    let existingUser = await User.findOne({ email: user.email }).session(session);
+    if (!existingUser) {
+      [existingUser] = await User.create([{ ...user, username: slugifiedUsername }], { session });
+    } else {
+      const updatedData: { name?: string; image?: string } = {};
+      if (user.name !== existingUser.name) updatedData.name = user.name;
+      if (user.image !== existingUser.image) updatedData.image = user.image;
+      if (Object.keys(updatedData).length > 0) {
+        existingUser = await User.findByIdAndUpdate(existingUser._id, updatedData, { new: true }).session(session);
+      }
+    }
+
+    if (!existingUser) {
+      await session.abortTransaction();
+      return null;
+    }
+
+    let existingAccount = await Account.findOne({ userId: existingUser._id, provider, providerAccountId }).session(
+      session
+    );
+    if (!existingAccount) {
+      [existingAccount] = await Account.create(
+        [{ userId: existingUser._id, name: user.name, image: user.image, provider, providerAccountId }],
+        { session }
+      );
+    }
+
+    await session.commitTransaction();
+    return existingAccount;
+  } catch {
+    await session.abortTransaction();
+    return null;
+  } finally {
+    await session.endSession();
+  }
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -72,11 +127,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return token;
         }
 
-        const { data: existingAccount, success } = (await api.accounts.getByProvider(
-          account.providerAccountId as string
-        )) as ActionResponse<IAccountDoc>;
+        await dbConnect();
+        const existingAccount = await Account.findOne({
+          provider: account.provider,
+          providerAccountId: account.providerAccountId as string,
+        });
 
-        if (!success || !existingAccount) {
+        if (!existingAccount) {
           return token;
         }
 
@@ -101,13 +158,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           account.provider === "github" ? (profile?.login as string) : (user.name?.toLocaleLowerCase() as string),
       };
 
-      const { success } = (await api.auth.oAuthSignIn({
+      const existingAccount = await upsertOAuthAccount({
         provider: account.provider as "github" | "google",
         providerAccountId: account.providerAccountId as string,
         user: userInfo,
-      })) as ActionResponse;
+      });
 
-      return success;
+      return existingAccount !== null;
     },
   },
 });
