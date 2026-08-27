@@ -7,7 +7,7 @@ const SignIn = () => {
   return (
     <AuthForm
       schema={SignInSchema}
-      defaultValues={{ email: "", password: "" }}
+      defaultValues={{ email: "demo@gmail.com", password: "Password1." }}
       formType="sign-in"
       onSubmit={signInWithCredentials}
     />

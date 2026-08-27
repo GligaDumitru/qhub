@@ -30,9 +30,7 @@ const dbConnect = async (): Promise<Mongoose> => {
 
   if (!cached.promise) {
     cached.promise = mongoose
-      .connect(MONGODB_URI, {
-        dbName: "qhub",
-      })
+      .connect(MONGODB_URI)
       .then((mongoose) => {
         logger.info("Connected to MongoDB");
         return mongoose;

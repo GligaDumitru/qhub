@@ -2,9 +2,12 @@ import type { IAccount } from "@/database/account.model";
 import type { IUser } from "@/database/user.model";
 
 import { fetchHandler } from "./handlers/fetch";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api";
-
+const API_BASE_URL =
+  typeof window !== "undefined"
+    ? "/api"
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}/api`
+      : "http://localhost:3000/api";
 export const api = {
   auth: {
     oAuthSignIn: ({ provider, providerAccountId, user }: SignInWithOAuthProps) =>
