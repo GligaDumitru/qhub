@@ -3,9 +3,10 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
-import { IAccountDoc } from "./database/account.model";
-import { IUserDoc } from "./database/user.model";
+import Account, { IAccountDoc } from "./database/account.model";
+import User from "./database/user.model";
 import { api } from "./lib/api";
+import dbConnect from "./lib/mongoose";
 import { SignInSchema } from "./lib/validations";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -30,14 +31,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const { email, password } = validatedFields.data;
 
-        const { data: existingAccount } = (await api.accounts.getByProvider(email)) as ActionResponse<IAccountDoc>;
+        await dbConnect();
+        const existingAccount = await Account.findOne({ provider: "credentials", providerAccountId: email });
         if (!existingAccount) {
           return null;
         }
 
-        const { data: existingUser } = (await api.users.getById(
-          existingAccount.userId.toString()
-        )) as ActionResponse<IUserDoc>;
+        const existingUser = await User.findById(existingAccount.userId);
         if (!existingUser) {
           return null;
         }
@@ -68,8 +68,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, account }) {
       if (account) {
         const isCredentials = account.type === "credentials";
+        if (isCredentials) {
+          return token;
+        }
+
         const { data: existingAccount, success } = (await api.accounts.getByProvider(
-          isCredentials ? token.email! : (account.providerAccountId as string)
+          account.providerAccountId as string
         )) as ActionResponse<IAccountDoc>;
 
         if (!success || !existingAccount) {
