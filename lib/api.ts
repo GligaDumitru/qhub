@@ -2,7 +2,7 @@ import type { IAccount } from "@/database/account.model";
 import type { IUser } from "@/database/user.model";
 
 import { fetchHandler } from "./handlers/fetch";
-
+// qhub-1efwjmxsj-gligadumitrus-projects.vercel.app
 console.log("process.env.VERCEL_URL", process.env.VERCEL_URL);
 const API_BASE_URL =
   typeof window !== "undefined"
@@ -11,6 +11,7 @@ const API_BASE_URL =
       ? `https://${process.env.VERCEL_URL}/api`
       : "http://localhost:3000/api";
 
+console.log("API_BASE_URL", API_BASE_URL);
 export const api = {
   auth: {
     oAuthSignIn: ({ provider, providerAccountId, user }: SignInWithOAuthProps) =>
